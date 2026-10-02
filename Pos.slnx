@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Pos.Application/Pos.Application.csproj" />
+    <Project Path="src/Pos.Desktop/Pos.Desktop.csproj" />
+    <Project Path="src/Pos.Domain/Pos.Domain.csproj" />
+    <Project Path="src/Pos.Hardware/Pos.Hardware.csproj" />
+    <Project Path="src/Pos.Infrastructure/Pos.Infrastructure.csproj" />
+    <Project Path="src/Pos.Sync.Contracts/Pos.Sync.Contracts.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Pos.Application.Tests/Pos.Application.Tests.csproj" />
+    <Project Path="tests/Pos.Domain.Tests/Pos.Domain.Tests.csproj" />
+    <Project Path="tests/Pos.Hardware.Tests/Pos.Hardware.Tests.csproj" />
+    <Project Path="tests/Pos.Infrastructure.Tests/Pos.Infrastructure.Tests.csproj" />
+  </Folder>
+</Solution>
