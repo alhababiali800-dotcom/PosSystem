@@ -46,7 +46,8 @@ public class SaleLine
 
     public Money GetNetUnitPrice()
     {
-        return new Money(UnitPrice.Amount - DiscountAmount.Amount);
+        if (Quantity.Value == 0) return UnitPrice;
+        return new Money(UnitPrice.Amount - (DiscountAmount.Amount / Quantity.Value));
     }
 }
 

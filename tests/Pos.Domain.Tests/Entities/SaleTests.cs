@@ -51,7 +51,7 @@ public class SaleTests
         var currency = Currency.Default;
         
         var line = sale.AddLine(Guid.NewGuid(), new Quantity(2m), new Money(100m), taxRate);
-        line.ApplyDiscount(new Money(10m)); // line discount 10. Net price = 90.
+        line.ApplyDiscount(new Money(20m)); // total line discount 20 (10 per unit). Net price = 90.
         
         sale.ApplyInvoiceDiscount(new Money(30m)); // overall discount 30.
         
