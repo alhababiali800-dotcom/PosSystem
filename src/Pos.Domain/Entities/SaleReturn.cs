@@ -4,16 +4,19 @@ using Pos.Domain.ValueObjects;
 
 namespace Pos.Domain.Entities;
 
-public class SaleReturnLine
+public class SaleReturnLine : BaseEntity
 {
-    public Guid Id { get; } = Guid.NewGuid();
-    public Guid SaleLineId { get; }
-    public Quantity Quantity { get; }
-    public Money RefundAmount { get; }
-    public Money ReturnCost { get; }
+    public Guid SaleLineId { get; private set; }
+    public Quantity Quantity { get; private set; }
+    public Money RefundAmount { get; private set; }
+    public Money ReturnCost { get; private set; }
+
+    // EF Core parameterless ctor
+    private SaleReturnLine() { }
 
     internal SaleReturnLine(Guid saleLineId, Quantity quantity, Money netUnitPrice, Money returnCost)
     {
+        Id = Guid.NewGuid();
         SaleLineId = saleLineId;
         Quantity = quantity;
         RefundAmount = netUnitPrice * quantity.Value;
@@ -21,13 +24,15 @@ public class SaleReturnLine
     }
 }
 
-public class SaleReturn
+public class SaleReturn : BaseEntity
 {
-    public Guid Id { get; }
-    public Guid SaleId { get; }
-    
+    public Guid SaleId { get; private set; }
+
     private readonly List<SaleReturnLine> _lines = new();
     public IReadOnlyList<SaleReturnLine> Lines => _lines.AsReadOnly();
+
+    // EF Core parameterless ctor
+    private SaleReturn() { }
 
     public SaleReturn(Guid id, Guid saleId)
     {
@@ -39,7 +44,7 @@ public class SaleReturn
     {
         if (quantityToReturn.Value <= 0)
             throw new InvalidOperationException("Return quantity must be positive.");
-            
+
         if (quantityToReturn.Value + alreadyReturned.Value > saleLine.Quantity.Value)
             throw new InvalidOperationException("Cannot exceed sold quantity minus already returned.");
 

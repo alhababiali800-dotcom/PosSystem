@@ -16,56 +16,41 @@ public static class Permissions
     public const string ShiftClose = "shift.close";
 }
 
-public class Role
+public class Role : BaseEntity
 {
-    public Guid Id { get; }
-    public string Name { get; }
-    public decimal MaxDiscountPercent { get; }
+    public string Name { get; set; } = string.Empty;
+    public decimal MaxDiscountPercent { get; set; }
     
-    private readonly HashSet<string> _permissions;
-    public IReadOnlySet<string> Permissions => _permissions;
-
-    public Role(Guid id, string name, decimal maxDiscountPercent, IEnumerable<string> permissions)
-    {
-        Id = id;
-        Name = name;
-        MaxDiscountPercent = maxDiscountPercent;
-        _permissions = new HashSet<string>(permissions);
-    }
+    private readonly HashSet<RolePermission> _permissions = new();
+    public IReadOnlyCollection<RolePermission> Permissions => _permissions;
 }
 
-public class User
+public class RolePermission
 {
-    public Guid Id { get; }
-    public string Username { get; }
+    public Guid RoleId { get; set; }
+    public string PermissionKey { get; set; } = string.Empty;
+}
+
+public class User : BaseEntity
+{
+    public string Username { get; set; } = string.Empty;
     
-    private readonly List<Role> _roles;
-    public IReadOnlyList<Role> Roles => _roles.AsReadOnly();
+    private readonly List<UserRole> _roles = new();
+    public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();
 
-    private readonly HashSet<Guid> _assignedBranchIds;
-    public IReadOnlySet<Guid> AssignedBranchIds => _assignedBranchIds;
+    private readonly HashSet<UserBranch> _assignedBranches = new();
+    public IReadOnlyCollection<UserBranch> AssignedBranches => _assignedBranches;
+}
 
-    public User(Guid id, string username, IEnumerable<Role> roles, IEnumerable<Guid> assignedBranchIds)
-    {
-        Id = id;
-        Username = username;
-        _roles = roles.ToList();
-        _assignedBranchIds = new HashSet<Guid>(assignedBranchIds);
-    }
+public class UserRole
+{
+    public Guid UserId { get; set; }
+    public Guid RoleId { get; set; }
+    public Role Role { get; set; } = null!;
+}
 
-    public bool HasPermission(string permissionKey)
-    {
-        return _roles.Any(r => r.Permissions.Contains(permissionKey));
-    }
-
-    public bool CanAccessBranch(Guid branchId)
-    {
-        return _assignedBranchIds.Contains(branchId);
-    }
-
-    public decimal GetMaxDiscountPercent()
-    {
-        if (_roles.Count == 0) return 0m;
-        return _roles.Max(r => r.MaxDiscountPercent);
-    }
+public class UserBranch
+{
+    public Guid UserId { get; set; }
+    public Guid BranchId { get; set; }
 }
