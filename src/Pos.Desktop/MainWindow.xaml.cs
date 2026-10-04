@@ -1,13 +1,5 @@
-﻿using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
+using Pos.Desktop.Localization;
 
 namespace Pos.Desktop;
 
@@ -19,5 +11,18 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+    }
+
+    private void SwitchLanguage_Click(object sender, RoutedEventArgs e)
+    {
+        LanguageManager.ToggleLanguage();
+
+        // x:Static يُقرأ مرة واحدة عند تحميل النافذة، لذلك نعيد فتحها
+        var oldWindow = System.Windows.Application.Current.MainWindow;
+        var newWindow = new MainWindow();
+
+        System.Windows.Application.Current.MainWindow = newWindow;
+        newWindow.Show();
+        oldWindow?.Close();
     }
 }

@@ -1,13 +1,14 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
+using Pos.Desktop.Localization;
 
 namespace Pos.Desktop;
 
-/// <summary>
-/// Interaction logic for App.xaml
-/// </summary>
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
-}
+    protected override void OnStartup(StartupEventArgs e)
+    {
+        LanguageManager.SetLanguage(LanguageManager.Arabic);
 
+        base.OnStartup(e);
+    }
+}

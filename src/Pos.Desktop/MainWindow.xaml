@@ -4,9 +4,42 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Pos.Desktop"
+        xmlns:res="clr-namespace:Pos.Desktop.Resources"
+        xmlns:loc="clr-namespace:Pos.Desktop.Localization"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="{x:Static res:Resources.AppTitle}"
+        FlowDirection="{x:Static loc:LanguageManager.CurrentFlowDirection}"
+        Height="450" Width="800">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
+        <TextBlock Grid.Row="0"
+                   Text="{x:Static res:Resources.AppTitle}"
+                   FontSize="26" FontWeight="Bold" Margin="0,0,0,16"/>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
+            <TextBox Width="250" Height="32" Margin="0,0,8,0"
+                     VerticalContentAlignment="Center"/>
+            <Button Content="{x:Static res:Resources.Search}" Width="100" Height="32"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2">
+            <Button Content="{x:Static res:Resources.Products}"
+                    Width="150" Height="36" HorizontalAlignment="Left" Margin="0,0,0,8"/>
+            <Button Content="{x:Static res:Resources.Categories}"
+                    Width="150" Height="36" HorizontalAlignment="Left"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left">
+            <Button Content="{x:Static res:Resources.Save}" Width="100" Height="34" Margin="0,0,8,0"/>
+            <Button Content="{x:Static res:Resources.Cancel}" Width="100" Height="34" Margin="0,0,8,0"/>
+            <Button Content="{x:Static res:Resources.SwitchLanguage}"
+                    Width="100" Height="34" Click="SwitchLanguage_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
