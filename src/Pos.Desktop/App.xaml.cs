@@ -21,7 +21,6 @@ public partial class App : System.Windows.Application
         ConfigureServices(services);
         Services = services.BuildServiceProvider();
 
-        // ينشئ قاعدة البيانات ويطبّق الـ Migrations إن لزم
         using (var scope = Services.CreateScope())
         {
             scope.ServiceProvider.GetRequiredService<PosDbContext>().Database.Migrate();
@@ -48,5 +47,8 @@ public partial class App : System.Windows.Application
         // Application
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IProductService, ProductService>();
+
+        // Windows
+        services.AddTransient<MainWindow>();
     }
 }
