@@ -34,6 +34,8 @@ public class RolePermission
 public class User : BaseEntity
 {
     public string Username { get; set; } = string.Empty;
+
+    public string PasswordHash { get; set; } = string.Empty;
     
     private readonly List<UserRole> _roles = new();
     public IReadOnlyCollection<UserRole> Roles => _roles.AsReadOnly();

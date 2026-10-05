@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,6 +13,7 @@ namespace Pos.Infrastructure.Data;
 
 public class PosDbContext : DbContext, IUnitOfWork
 {
+    // ── DbSets ────────────────────────────────────────────────────────
     public DbSet<Settings> Settings => Set<Settings>();
     public DbSet<Branch> Branches => Set<Branch>();
     public DbSet<Device> Devices => Set<Device>();
@@ -40,18 +42,69 @@ public class PosDbContext : DbContext, IUnitOfWork
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<SequenceCounter> SequenceCounters => Set<SequenceCounter>();
-
-    // TaxRate is a domain object stored as a lookup table but also flattened onto SaleLine.
-    // We store the canonical list here for look-ups at setup time.
     public DbSet<TaxRateRecord> TaxRates => Set<TaxRateRecord>();
 
+    // ── Repository cache (IUnitOfWork) ───────────────────────────────
+    private readonly Dictionary<Type, object> _repositories = new();
+
     public PosDbContext(DbContextOptions<PosDbContext> options) : base(options) { }
+
+    // ── IUnitOfWork.GetRepository<T> ────────────────────────────────
+    public IRepository<T> GetRepository<T>() where T : class
+    {
+        if (_repositories.TryGetValue(typeof(T), out var cached))
+            return (IRepository<T>)cached;
+
+        var repo = new Repository<T>(this);
+        _repositories[typeof(T)] = repo;
+        return repo;
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // ── Value Converters ──────────────────────────────────────────────
+        // ── SEED DATA ─────────────────────────────────────────────────
+        var branchId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        var unitId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+        var adminId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+        var seedDate = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        modelBuilder.Entity<Branch>().HasData(new Branch
+        {
+            Id = branchId,
+            BranchId = branchId,
+            Name = "Main Branch",
+            CreatedByUserId = adminId,
+            CreatedAtUtc = seedDate,
+            UpdatedAtUtc = seedDate,
+            IsDeleted = false
+        });
+
+        modelBuilder.Entity<Unit>().HasData(new Unit
+        {
+            Id = unitId,
+            BranchId = branchId,
+            Name = "Piece",
+            CreatedByUserId = adminId,
+            CreatedAtUtc = seedDate,
+            UpdatedAtUtc = seedDate,
+            IsDeleted = false
+        });
+
+        modelBuilder.Entity<User>().HasData(new User
+        {
+            Id = adminId,
+            BranchId = branchId,
+            Username = "admin",
+            PasswordHash = "8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918",
+            CreatedByUserId = adminId,
+            CreatedAtUtc = seedDate,
+            UpdatedAtUtc = seedDate,
+            IsDeleted = false
+        });
+
+        // ── Value Converters ──────────────────────────────────────────
         var moneyConverter = new ValueConverter<Money, long>(
             v => (long)Math.Round(v.Amount * 100m, 0, MidpointRounding.AwayFromZero),
             v => new Money(v / 100m)
@@ -74,8 +127,7 @@ public class PosDbContext : DbContext, IUnitOfWork
             }
         }
 
-        // ── Ignore unmapped computed properties ──────────────────────────
-        // SaleLine.TaxRate is a computed property that combines stored columns; tell EF Core to ignore it.
+        // ── Ignore unmapped computed properties ───────────────────────
         modelBuilder.Entity<SaleLine>().Ignore(e => e.TaxRate);
 
         // ── RowVersion (optimistic concurrency via manual long increment) ──
@@ -89,7 +141,7 @@ public class PosDbContext : DbContext, IUnitOfWork
             }
         }
 
-        // ── Composite / custom keys ───────────────────────────────────────
+        // ── Composite / custom keys ───────────────────────────────────
         modelBuilder.Entity<RolePermission>().HasKey(e => new { e.RoleId, e.PermissionKey });
         modelBuilder.Entity<UserRole>().HasKey(e => new { e.UserId, e.RoleId });
         modelBuilder.Entity<UserBranch>().HasKey(e => new { e.UserId, e.BranchId });
@@ -97,10 +149,9 @@ public class PosDbContext : DbContext, IUnitOfWork
         modelBuilder.Entity<StockBalance>().HasKey(e => new { e.BranchId, e.ProductId });
         modelBuilder.Entity<TaxRateRecord>().HasKey(e => e.Name);
 
-        // SalePayment has no BaseEntity; give it an explicit key
         modelBuilder.Entity<SalePayment>().HasKey(e => e.Id);
 
-        // ── Relationships ────────────────────────────────────────────────
+        // ── Relationships ─────────────────────────────────────────────
         modelBuilder.Entity<Sale>().HasMany(e => e.Lines).WithOne().HasForeignKey("SaleId");
         modelBuilder.Entity<Sale>().HasMany(e => e.Payments).WithOne().HasForeignKey("SaleId");
         modelBuilder.Entity<SaleReturn>().HasMany(e => e.Lines).WithOne().HasForeignKey("SaleReturnId");

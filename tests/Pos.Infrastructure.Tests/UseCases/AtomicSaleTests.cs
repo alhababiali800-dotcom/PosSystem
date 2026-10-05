@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +18,7 @@ public class AtomicSaleTests : IDisposable
 {
     private readonly SqliteConnection _connection;
     private readonly PosDbContext _context;
-    
+
     public AtomicSaleTests()
     {
         _connection = new SqliteConnection("DataSource=:memory:");
@@ -57,10 +57,10 @@ public class AtomicSaleTests : IDisposable
         var stockRepo = new StockRepository(_context);
         var auditRepo = new Repository<AuditLog>(_context);
         var outboxRepo = new Repository<OutboxMessage>(_context);
-        
+
         var returnRepo = new Repository<SaleReturn>(_context);
         var saleLineRepo = new Repository<SaleLine>(_context);
-        
+
         var service = new SaleService(_context, docGen, saleRepo, stockRepo, auditRepo, outboxRepo, returnRepo, saleLineRepo);
 
         var sale = new Sale(Guid.NewGuid());
@@ -133,7 +133,7 @@ public class AtomicSaleTests : IDisposable
         // Sale should exist
         var savedSale = await verifyContext.Sales.FirstOrDefaultAsync();
         savedSale.ShouldNotBeNull();
-        
+
         // Outbox should exist
         var outbox = await verifyContext.OutboxMessages.FirstOrDefaultAsync();
         outbox.ShouldNotBeNull();
@@ -147,23 +147,23 @@ public class AtomicSaleTests : IDisposable
         var seq2 = await verifyContext.SequenceCounters.FirstOrDefaultAsync();
         seq2!.LastSequence.ShouldBe(1);
     }
-    
+
     [Fact]
     public async Task StaleUpdate_Throws_DbUpdateConcurrencyException()
     {
         var branch = new Branch { Code = "B1", Name = "Branch 1" };
         _context.Branches.Add(branch);
         await _context.SaveChangesAsync();
-        
+
         // Simulate a second context reading the same entity
         var options = new DbContextOptionsBuilder<PosDbContext>().UseSqlite(_connection).Options;
         using var context2 = new PosDbContext(options);
-        var branch2 = await context2.Branches.FirstAsync();
-        
+        var branch2 = await context2.Branches.FirstAsync(b => b.Id == branch.Id);
+
         // Modify in context 1 and save
         branch.Name = "Updated 1";
         await _context.SaveChangesAsync();
-        
+
         // Modify in context 2 and try to save
         branch2.Name = "Updated 2";
         await Should.ThrowAsync<DbUpdateConcurrencyException>(() => context2.SaveChangesAsync());
@@ -178,5 +178,8 @@ public class AtomicSaleTests : IDisposable
         {
             throw new Exception("Simulated DB failure");
         }
+
+        IRepository<T> IUnitOfWork.GetRepository<T>() => ((IUnitOfWork)_inner).GetRepository<T>();
     }
 }
+

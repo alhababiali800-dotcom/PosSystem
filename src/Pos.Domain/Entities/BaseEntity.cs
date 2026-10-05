@@ -4,7 +4,7 @@ namespace Pos.Domain.Entities;
 
 public abstract class BaseEntity
 {
-    public Guid Id { get; protected set; } = Guid.NewGuid();
+    public Guid Id { get; init; }
     public Guid BranchId { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;

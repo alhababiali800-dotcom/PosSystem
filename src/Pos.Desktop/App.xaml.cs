@@ -26,7 +26,10 @@ public partial class App : System.Windows.Application
             scope.ServiceProvider.GetRequiredService<PosDbContext>().Database.Migrate();
         }
 
-        base.OnStartup(e);
+        base.OnStartup(e);   // opens nothing now that StartupUri is gone
+
+        var loginWindow = Services.GetRequiredService<LoginWindow>();
+        loginWindow.Show();
     }
 
     private static void ConfigureServices(IServiceCollection services)
@@ -47,8 +50,10 @@ public partial class App : System.Windows.Application
         // Application
         services.AddScoped<ICategoryService, CategoryService>();
         services.AddScoped<IProductService, ProductService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         // Windows
+        services.AddTransient<LoginWindow>();
         services.AddTransient<MainWindow>();
     }
 }
