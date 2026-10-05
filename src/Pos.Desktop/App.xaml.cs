@@ -6,6 +6,8 @@ using Pos.Application.Interfaces;
 using Pos.Application.UseCases;
 using Pos.Desktop.Localization;
 using Pos.Infrastructure.Data;
+using Pos.Desktop.Navigation; // تمت الإضافة
+using Pos.Desktop.ViewModels; // تمت الإضافة
 
 namespace Pos.Desktop;
 
@@ -55,5 +57,12 @@ public partial class App : System.Windows.Application
         // Windows
         services.AddTransient<LoginWindow>();
         services.AddTransient<MainWindow>();
+
+        // Navigation + ViewModels
+        services.AddSingleton<INavigationService, NavigationService>();
+        services.AddTransient<MainViewModel>();
+        services.AddTransient<PosViewModel>();
+        services.AddTransient<CategoriesViewModel>();
+        services.AddTransient<ProductsViewModel>();
     }
 }

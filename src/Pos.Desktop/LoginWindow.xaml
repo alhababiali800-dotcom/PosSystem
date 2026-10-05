@@ -1,7 +1,10 @@
 <Window x:Class="Pos.Desktop.LoginWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="System Login"
+        xmlns:res="clr-namespace:Pos.Desktop.Resources"
+        xmlns:loc="clr-namespace:Pos.Desktop.Localization"
+        Title="{x:Static res:Resources.LoginTitle}"
+        FlowDirection="{x:Static loc:LanguageManager.CurrentFlowDirection}"
         Width="440" Height="520"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
@@ -83,23 +86,23 @@
             </Border.Effect>
 
             <StackPanel VerticalAlignment="Center">
-                <TextBlock Text="System Login"
+                <TextBlock Text="{x:Static res:Resources.LoginTitle}"
                            FontSize="26" FontWeight="Bold"
                            Foreground="#0F172A"
                            HorizontalAlignment="Center"/>
-                <TextBlock Text="Sign in to continue"
+                <TextBlock Text="{x:Static res:Resources.LoginSubtitle}"
                            FontSize="13" Foreground="#64748B"
                            HorizontalAlignment="Center"
                            Margin="0,4,0,28"/>
 
-                <TextBlock Text="Username" Style="{StaticResource FieldLabel}"/>
+                <TextBlock Text="{x:Static res:Resources.Username}" Style="{StaticResource FieldLabel}"/>
                 <TextBox x:Name="UsernameTextBox" Margin="0,0,0,18"/>
 
-                <TextBlock Text="Password" Style="{StaticResource FieldLabel}"/>
+                <TextBlock Text="{x:Static res:Resources.Password}" Style="{StaticResource FieldLabel}"/>
                 <PasswordBox x:Name="PasswordBox" Margin="0,0,0,28"/>
 
                 <Button x:Name="LoginButton"
-                        Content="Login"
+                        Content="{x:Static res:Resources.Login}"
                         IsDefault="True"
                         Style="{StaticResource PrimaryButton}"
                         Click="LoginButton_Click"/>

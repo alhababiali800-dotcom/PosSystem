@@ -1,45 +1,117 @@
 ﻿<Window x:Class="Pos.Desktop.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Pos.Desktop"
         xmlns:res="clr-namespace:Pos.Desktop.Resources"
         xmlns:loc="clr-namespace:Pos.Desktop.Localization"
-        mc:Ignorable="d"
+        xmlns:vm="clr-namespace:Pos.Desktop.ViewModels"
         Title="{x:Static res:Resources.AppTitle}"
         FlowDirection="{x:Static loc:LanguageManager.CurrentFlowDirection}"
-        Height="450" Width="800">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
+        Width="1200" Height="720" MinWidth="900" MinHeight="560"
+        WindowStartupLocation="CenterScreen"
+        Background="#F1F4F9"
+        FontFamily="Segoe UI">
 
-        <TextBlock Grid.Row="0"
-                   Text="{x:Static res:Resources.AppTitle}"
-                   FontSize="26" FontWeight="Bold" Margin="0,0,0,16"/>
+    <Window.Resources>
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="Margin" Value="12,0,12,6"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#E2E8F0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd" Background="{TemplateBinding Background}" CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter VerticalAlignment="Center"
+                                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#1E293B"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Background" Value="#334155"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
 
-        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,16">
-            <TextBox Width="250" Height="32" Margin="0,0,8,0"
-                     VerticalContentAlignment="Center"/>
-            <Button Content="{x:Static res:Resources.Search}" Width="100" Height="32"/>
-        </StackPanel>
+        <Style x:Key="TopBarButton" TargetType="Button">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="MinWidth" Value="90"/>
+            <Setter Property="Margin" Value="8,0,0,0"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
 
-        <StackPanel Grid.Row="2">
-            <Button Content="{x:Static res:Resources.Products}"
-                    Width="150" Height="36" HorizontalAlignment="Left" Margin="0,0,0,8"/>
-            <Button Content="{x:Static res:Resources.Categories}"
-                    Width="150" Height="36" HorizontalAlignment="Left"/>
-        </StackPanel>
+        <!-- Placeholder view for every ScreenViewModel. Replace with real views later:
+             <DataTemplate DataType="{x:Type vm:ProductsViewModel}"><views:ProductsView/></DataTemplate> -->
+        <DataTemplate DataType="{x:Type vm:ScreenViewModel}">
+            <Border Background="White" CornerRadius="10" Margin="24" Padding="24">
+                <TextBlock Text="{Binding Title}" FontSize="28" FontWeight="Bold" Foreground="#0F172A"/>
+            </Border>
+        </DataTemplate>
+    </Window.Resources>
 
-        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Left">
-            <Button Content="{x:Static res:Resources.Save}" Width="100" Height="34" Margin="0,0,8,0"/>
-            <Button Content="{x:Static res:Resources.Cancel}" Width="100" Height="34" Margin="0,0,8,0"/>
-            <Button Content="{x:Static res:Resources.SwitchLanguage}"
-                    Width="100" Height="34" Click="SwitchLanguage_Click"/>
-        </StackPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="230"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- Sidebar -->
+        <Border Grid.Column="0" Background="#0F172A">
+            <StackPanel Margin="0,24,0,0">
+                <TextBlock Text="{x:Static res:Resources.AppTitle}"
+                           FontSize="20" FontWeight="Bold" Foreground="White"
+                           Margin="24,0,24,28"/>
+                <Button Content="{x:Static res:Resources.PointOfSale}"
+                        Command="{Binding NavigateToPosCommand}"
+                        Style="{StaticResource NavButton}"/>
+                <Button Content="{x:Static res:Resources.Categories}"
+                        Command="{Binding NavigateToCategoriesCommand}"
+                        Style="{StaticResource NavButton}"/>
+                <Button Content="{x:Static res:Resources.Products}"
+                        Command="{Binding NavigateToProductsCommand}"
+                        Style="{StaticResource NavButton}"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Main area -->
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Top bar -->
+            <Border Grid.Row="0" Background="White" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
+                <DockPanel Margin="24,0">
+                    <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Button Content="{x:Static res:Resources.SwitchLanguage}"
+                                Command="{Binding SwitchLanguageCommand}"
+                                Style="{StaticResource TopBarButton}"/>
+                        <Button Content="{x:Static res:Resources.Logout}"
+                                Command="{Binding LogoutCommand}"
+                                Style="{StaticResource TopBarButton}"/>
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{x:Static res:Resources.CurrentUser}"
+                                   Foreground="#64748B" Margin="0,0,6,0"/>
+                        <TextBlock Text="{Binding CurrentUserName}" FontWeight="SemiBold" Foreground="#0F172A"/>
+                    </StackPanel>
+                </DockPanel>
+            </Border>
+
+            <!-- Active screen -->
+            <ContentControl Grid.Row="1" Content="{Binding CurrentViewModel}"/>
+        </Grid>
     </Grid>
 </Window>
